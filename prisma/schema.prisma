@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TradingTool {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  category      String
+  type          String
+  platform      String
+  tags          String   @default("")
+  fileUrl       String   @default("")
+  fileName      String   @default("")
+  imageUrl      String   @default("")
+  version       String   @default("1.0")
+  author        String   @default("Anonymous")
+  rating        Float    @default(0)
+  downloadCount Int      @default(0)
+  isFeatured    Boolean  @default(false)
+  isHot         Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Broker {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  logoUrl     String   @default("")
+  affiliateUrl String  @default("")
+  rating      Float    @default(0)
+  features    String   @default("")
+  bonusInfo   String   @default("")
+  isFeatured  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  toolId     String   @default("")
+  toolName   String   @default("")
+  name       String
+  role       String   @default("Trader")
+  comment    String
+  rating     Int
+  isApproved  Boolean @default(false)
+  isFeatured  Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SiteConfig {
+  id    String @id @default("main")
+  key   String @unique
+  value String
+}
