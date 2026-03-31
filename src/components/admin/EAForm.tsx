@@ -5,15 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Loader2, Upload, X, Save } from 'lucide-react';
+import { Loader2, X, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import type { TradingTool } from '@/lib/store';
 
@@ -22,6 +14,18 @@ interface EAFormProps {
   onSuccess: () => void;
   onCancel: () => void;
 }
+
+const selectStyle: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: '#0B0F1A',
+  border: '1px solid #1F2937',
+  borderRadius: '8px',
+  color: '#fff',
+  padding: '8px 12px',
+  fontSize: '14px',
+  outline: 'none',
+  appearance: 'auto',
+};
 
 export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
   const [form, setForm] = useState({
@@ -97,7 +101,6 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
 
     setSubmitting(true);
     try {
-      // Upload file if selected
       let finalFileUrl = fileUrl;
       if (file) {
         setUploading(true);
@@ -106,7 +109,6 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
         setUploading(false);
       }
 
-      // Upload image if selected
       let finalImageUrl = imageUrl;
       if (image) {
         setUploading(true);
@@ -188,7 +190,7 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
           variant="ghost"
           size="icon"
           onClick={handleCancel}
-          className="text-gray-400 hover:text-white hover:bg-dark-hover"
+          className="text-gray-400 hover:text-white hover:bg-gray-800"
         >
           <X className="w-4 h-4" />
         </Button>
@@ -197,30 +199,24 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
         {/* Name */}
         <div className="space-y-1.5">
-          <Label htmlFor="name" className="text-gray-300 text-sm">
-            Name *
-          </Label>
+          <Label className="text-gray-300 text-sm">Name *</Label>
           <Input
-            id="name"
             placeholder="e.g. Gold Scalper Pro"
             value={form.name}
             onChange={(e) => updateField('name', e.target.value)}
-            className="bg-dark-bg border-dark-border text-white placeholder:text-gray-600 focus:border-neon focus:ring-neon/20"
+            style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
           />
         </div>
 
         {/* Description */}
         <div className="space-y-1.5">
-          <Label htmlFor="description" className="text-gray-300 text-sm">
-            Description
-          </Label>
+          <Label className="text-gray-300 text-sm">Description</Label>
           <Textarea
-            id="description"
             placeholder="Describe the tool..."
             rows={3}
             value={form.description}
             onChange={(e) => updateField('description', e.target.value)}
-            className="bg-dark-bg border-dark-border text-white placeholder:text-gray-600 focus:border-neon focus:ring-neon/20 resize-none"
+            style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff', resize: 'none' }}
           />
         </div>
 
@@ -228,171 +224,143 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label className="text-gray-300 text-sm">Type</Label>
-            <Select
+            <select
               value={form.type}
-              onValueChange={(v) => updateField('type', v)}
+              onChange={(e) => updateField('type', e.target.value)}
+              style={selectStyle}
             >
-              <SelectTrigger style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent portal={false} style={{ backgroundColor: '#111827', borderColor: '#1F2937' }}>
-                <SelectItem value="ea" style={{ color: '#fff' }}>EA (Expert Advisor)</SelectItem>
-                <SelectItem value="indicator" style={{ color: '#fff' }}>Indicator</SelectItem>
-              </SelectContent>
-            </Select>
+              <option value="ea">EA (Expert Advisor)</option>
+              <option value="indicator">Indicator</option>
+            </select>
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-gray-300 text-sm">Category</Label>
-            <Select
+            <select
               value={form.category}
-              onValueChange={(v) => updateField('category', v)}
+              onChange={(e) => updateField('category', e.target.value)}
+              style={selectStyle}
             >
-              <SelectTrigger style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent portal={false} style={{ backgroundColor: '#111827', borderColor: '#1F2937' }}>
-                <SelectItem value="scalping" style={{ color: '#fff' }}>Scalping</SelectItem>
-                <SelectItem value="auto-trading" style={{ color: '#fff' }}>Auto Trading</SelectItem>
-                <SelectItem value="indicator" style={{ color: '#fff' }}>Indicator</SelectItem>
-                <SelectItem value="tools" style={{ color: '#fff' }}>Tools</SelectItem>
-              </SelectContent>
-            </Select>
+              <option value="scalping">Scalping</option>
+              <option value="auto-trading">Auto Trading</option>
+              <option value="indicator">Indicator</option>
+              <option value="tools">Tools</option>
+            </select>
           </div>
         </div>
 
         {/* Platform */}
         <div className="space-y-1.5">
           <Label className="text-gray-300 text-sm">Platform</Label>
-          <Select
+          <select
             value={form.platform}
-            onValueChange={(v) => updateField('platform', v)}
+            onChange={(e) => updateField('platform', e.target.value)}
+            style={selectStyle}
           >
-            <SelectTrigger style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent portal={false} style={{ backgroundColor: '#111827', borderColor: '#1F2937' }}>
-              <SelectItem value="mt4" style={{ color: '#fff' }}>MT4</SelectItem>
-              <SelectItem value="mt5" style={{ color: '#fff' }}>MT5</SelectItem>
-              <SelectItem value="both" style={{ color: '#fff' }}>Both</SelectItem>
-            </SelectContent>
-          </Select>
+            <option value="mt4">MT4</option>
+            <option value="mt5">MT5</option>
+            <option value="both">Both MT4 & MT5</option>
+          </select>
         </div>
 
         {/* Version & Author Row */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="version" className="text-gray-300 text-sm">
-              Version
-            </Label>
+            <Label className="text-gray-300 text-sm">Version</Label>
             <Input
-              id="version"
               placeholder="1.0"
               value={form.version}
               onChange={(e) => updateField('version', e.target.value)}
-              className="bg-dark-bg border-dark-border text-white placeholder:text-gray-600 focus:border-neon focus:ring-neon/20"
+              style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="author" className="text-gray-300 text-sm">
-              Author
-            </Label>
+            <Label className="text-gray-300 text-sm">Author</Label>
             <Input
-              id="author"
               placeholder="Author name"
               value={form.author}
               onChange={(e) => updateField('author', e.target.value)}
-              className="bg-dark-bg border-dark-border text-white placeholder:text-gray-600 focus:border-neon focus:ring-neon/20"
+              style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
             />
           </div>
         </div>
 
         {/* Tags */}
         <div className="space-y-1.5">
-          <Label htmlFor="tags" className="text-gray-300 text-sm">
-            Tags
-          </Label>
+          <Label className="text-gray-300 text-sm">Tags</Label>
           <Input
-            id="tags"
             placeholder="gold, scalping, trend (comma-separated)"
             value={form.tags}
             onChange={(e) => updateField('tags', e.target.value)}
-            className="bg-dark-bg border-dark-border text-white placeholder:text-gray-600 focus:border-neon focus:ring-neon/20"
+            style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
           />
         </div>
 
         {/* File Upload */}
         <div className="space-y-1.5">
           <Label className="text-gray-300 text-sm">File (.ex4, .ex5, .mq4, .mq5)</Label>
-          <div className="relative">
-            <Input
-              type="file"
-              accept=".ex4,.ex5,.mq4,.mq5"
-              onChange={(e) => {
-                const f = e.target.files?.[0] || null;
-                setFile(f);
-                if (f) toast.info(`Selected: ${f.name}`);
-              }}
-              className="bg-dark-bg border-dark-border text-gray-400 file:text-neon file:bg-neon/10 file:border-0 file:rounded file:mr-3 file:px-3 file:py-1 file:text-xs file:font-medium"
-            />
-          </div>
+          <input
+            type="file"
+            accept=".ex4,.ex5,.mq4,.mq5"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null;
+              setFile(f);
+              if (f) toast.info(`Selected: ${f.name}`);
+            }}
+            style={{ color: '#9CA3AF' }}
+          />
           {fileUrl && (
-            <p className="text-xs text-neon/70 truncate">📎 {fileUrl}</p>
+            <p className="text-xs text-[#00FFB2]/70 truncate">📎 File set</p>
           )}
         </div>
 
         {/* Image Upload */}
         <div className="space-y-1.5">
           <Label className="text-gray-300 text-sm">Image (.png, .jpg, .jpeg, .webp)</Label>
-          <div className="relative">
-            <Input
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp"
-              onChange={(e) => {
-                const f = e.target.files?.[0] || null;
-                setImage(f);
-                if (f) toast.info(`Image: ${f.name}`);
-              }}
-              className="bg-dark-bg border-dark-border text-gray-400 file:text-neon file:bg-neon/10 file:border-0 file:rounded file:mr-3 file:px-3 file:py-1 file:text-xs file:font-medium"
-            />
-          </div>
+          <input
+            type="file"
+            accept=".png,.jpg,.jpeg,.webp"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null;
+              setImage(f);
+              if (f) toast.info(`Image: ${f.name}`);
+            }}
+            style={{ color: '#9CA3AF' }}
+          />
           {imageUrl && (
             <div className="mt-2 flex items-center gap-2">
               <img
                 src={imageUrl}
                 alt="Preview"
-                className="w-12 h-12 rounded-lg object-cover border border-dark-border"
+                className="w-12 h-12 rounded-lg object-cover"
+                style={{ border: '1px solid #1F2937' }}
               />
-              <p className="text-xs text-neon/70 truncate">🖼️ Image set</p>
+              <p className="text-xs text-[#00FFB2]/70">🖼️ Image set</p>
             </div>
           )}
         </div>
 
-        {/* Checkboxes */}
+        {/* Featured & Hot */}
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="isFeatured"
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
               checked={form.isFeatured}
-              onCheckedChange={(checked) => updateField('isFeatured', !!checked)}
-              className="border-dark-border data-[state=checked]:bg-neon data-[state=checked]:border-neon"
+              onChange={(e) => updateField('isFeatured', e.target.checked)}
+              className="w-4 h-4 accent-[#00FFB2]"
             />
-            <Label htmlFor="isFeatured" className="text-gray-300 text-sm cursor-pointer">
-              ⭐ Featured
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="isHot"
+            <span className="text-gray-300 text-sm">⭐ Featured</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
               checked={form.isHot}
-              onCheckedChange={(checked) => updateField('isHot', !!checked)}
-              className="border-dark-border data-[state=checked]:bg-trading-red data-[state=checked]:border-trading-red"
+              onChange={(e) => updateField('isHot', e.target.checked)}
+              className="w-4 h-4 accent-[#EF4444]"
             />
-            <Label htmlFor="isHot" className="text-gray-300 text-sm cursor-pointer">
-              🔥 Hot
-            </Label>
-          </div>
+            <span className="text-gray-300 text-sm">🔥 Hot</span>
+          </label>
         </div>
 
         {/* Submit Buttons */}
@@ -400,7 +368,8 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
           <Button
             type="submit"
             disabled={submitting || uploading}
-            className="flex-1 bg-neon text-dark-bg hover:bg-neon-dim font-semibold btn-neon glow-neon"
+            className="flex-1 font-semibold"
+            style={{ backgroundColor: '#00FFB2', color: '#0B0F1A' }}
           >
             {(submitting || uploading) ? (
               <>
@@ -419,7 +388,7 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
             variant="outline"
             onClick={handleCancel}
             disabled={submitting}
-            className="border-dark-border text-gray-300 hover:bg-dark-hover hover:text-white"
+            style={{ borderColor: '#1F2937', color: '#9CA3AF' }}
           >
             Cancel
           </Button>
