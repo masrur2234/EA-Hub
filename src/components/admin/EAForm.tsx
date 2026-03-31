@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Loader2, X, Save, Link, Upload, ImageIcon, Trash2, ImagePlus } from 'lucide-react';
+import { Loader2, X, Save, Link, Upload, ImageIcon, Trash2, ImagePlus, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore, type TradingTool } from '@/lib/store';
 
@@ -43,6 +43,8 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
   const [fileUrl, setFileUrl] = useState('');
   const [fileName, setFileName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [rating, setRating] = useState(4.5);
+  const [hoverRating, setHoverRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +66,8 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
       setFileUrl(editTool.fileUrl || '');
       setFileName(editTool.fileName || '');
       setImageUrl(editTool.imageUrl || '');
+      setRating(editTool.rating || 4.5);
+      setHoverRating(0);
     }
   }, [editTool]);
 
@@ -130,6 +134,7 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
         fileUrl: fileUrl.trim(),
         fileName: fileName.trim(),
         imageUrl: imageUrl.trim(),
+        rating: rating,
       };
 
       const isEditing = !!editTool?.id;
@@ -152,9 +157,7 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
 
       toast.success(isEditing ? 'Tool berhasil diupdate! ✅' : 'Tool berhasil dibuat! 🎉');
       resetForm();
-      // Bump data version to trigger landing page re-fetch
       useAppStore.getState().bumpDataVersion();
-      // Also dispatch a custom event as backup for cross-component refresh
       window.dispatchEvent(new CustomEvent('tools-updated'));
       onSuccess();
     } catch (err: unknown) {
@@ -181,6 +184,8 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
     setFileUrl('');
     setFileName('');
     setImageUrl('');
+    setRating(4.5);
+    setHoverRating(0);
   };
 
   const handleCancel = () => {
@@ -335,6 +340,35 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
               )}
             </button>
             <p className="text-[10px] text-gray-500 mt-1">PNG, JPG, WebP &bull; Maksimal 2MB</p>
+          </div>
+        </div>
+
+        {/* Rating */}
+        <div className="space-y-1.5">
+          <Label className="text-gray-300 text-sm flex items-center gap-1.5">
+            <Star className="w-3.5 h-3.5 text-[#F59E0B]" />
+            Rating (klik bintang)
+          </Label>
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
+                className="p-0.5 transition-transform hover:scale-110"
+              >
+                <Star
+                  className={`w-7 h-7 transition-colors ${
+                    star <= (hoverRating || rating)
+                      ? 'fill-[#F59E0B] text-[#F59E0B]'
+                      : 'text-[#1F2937]'
+                  }`}
+                />
+              </button>
+            ))}
+            <span className="ml-2 text-sm font-bold text-[#F59E0B]">{rating}/5</span>
           </div>
         </div>
 
