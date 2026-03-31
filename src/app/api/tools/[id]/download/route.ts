@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+// IMPORTANT: Force dynamic - prevent Vercel from caching API responses
+export const dynamic = 'force-dynamic';
+
 // POST /api/tools/[id]/download - Increment download count
 export async function POST(
   _request: NextRequest,
@@ -17,7 +20,7 @@ export async function POST(
       return NextResponse.json({ error: "Tool not found" }, { status: 404 });
     }
 
-    const updated = await db.tradingTool.update({
+    await db.tradingTool.update({
       where: { id },
       data: {
         downloadCount: {
@@ -26,10 +29,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      downloadCount: updated.downloadCount,
-    });
+    return NextResponse.json({ success: true, downloadCount: tool.downloadCount + 1 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to update download count";
     return NextResponse.json({ error: message }, { status: 500 });
