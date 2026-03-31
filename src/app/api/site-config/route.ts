@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+// IMPORTANT: Force dynamic - prevent Vercel from caching API responses
+export const dynamic = 'force-dynamic';
+
 const ADMIN_TOKEN = "admin-token";
 
 function verifyAdmin(request: NextRequest): boolean {
