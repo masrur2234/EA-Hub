@@ -5,9 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Loader2, X, Save } from 'lucide-react';
+import { Loader2, X, Save, Link, Upload, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import type { TradingTool } from '@/lib/store';
+import { useAppStore, type TradingTool } from '@/lib/store';
 
 interface EAFormProps {
   editTool?: TradingTool | null;
@@ -40,12 +40,10 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
     isFeatured: false,
     isHot: false,
   });
-  const [file, setFile] = useState<File | null>(null);
-  const [image, setImage] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState('');
+  const [fileName, setFileName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (editTool) {
@@ -62,6 +60,7 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
         isHot: editTool.isHot || false,
       });
       setFileUrl(editTool.fileUrl || '');
+      setFileName(editTool.fileName || '');
       setImageUrl(editTool.imageUrl || '');
     }
   }, [editTool]);
@@ -72,56 +71,21 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
 
   const getToken = () => localStorage.getItem('admin-token');
 
-  const uploadFile = async (fileToUpload: File, fieldName: string): Promise<string> => {
-    const formData = new FormData();
-    formData.append(fieldName, fileToUpload);
-
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${getToken()}` },
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({ error: 'Upload failed' }));
-      throw new Error(data.error || 'Upload failed');
-    }
-
-    const data = await res.json();
-    return data.fileUrl || '';
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.name.trim()) {
-      toast.error('Tool name is required');
+      toast.error('Nama tool wajib diisi!');
       return;
     }
 
     setSubmitting(true);
     try {
-      let finalFileUrl = fileUrl;
-      if (file) {
-        setUploading(true);
-        finalFileUrl = await uploadFile(file, 'file');
-        setFileUrl(finalFileUrl);
-        setUploading(false);
-      }
-
-      let finalImageUrl = imageUrl;
-      if (image) {
-        setUploading(true);
-        finalImageUrl = await uploadFile(image, 'image');
-        setImageUrl(finalImageUrl);
-        setUploading(false);
-      }
-
       const payload = {
         ...form,
-        fileUrl: finalFileUrl,
-        fileName: file?.name || editTool?.fileName || '',
-        imageUrl: finalImageUrl,
+        fileUrl: fileUrl.trim(),
+        fileName: fileName.trim(),
+        imageUrl: imageUrl.trim(),
       };
 
       const isEditing = !!editTool?.id;
@@ -142,15 +106,15 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
         throw new Error(data.error || 'Failed to save tool');
       }
 
-      toast.success(isEditing ? 'Tool updated successfully! ✅' : 'Tool created successfully! 🎉');
+      toast.success(isEditing ? 'Tool berhasil diupdate! ✅' : 'Tool berhasil dibuat! 🎉');
       resetForm();
       onSuccess();
+      useAppStore.getState().bumpDataVersion();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       toast.error(message);
     } finally {
       setSubmitting(false);
-      setUploading(false);
     }
   };
 
@@ -167,9 +131,8 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
       isFeatured: false,
       isHot: false,
     });
-    setFile(null);
-    setImage(null);
     setFileUrl('');
+    setFileName('');
     setImageUrl('');
   };
 
@@ -297,103 +260,49 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
           />
         </div>
 
-        {/* File Upload */}
+        {/* Download URL */}
         <div className="space-y-1.5">
-          <Label className="text-gray-300 text-sm">File (.ex4, .ex5, .mq4, .mq5)</Label>
-          <input
-            type="file"
-            accept=".ex4,.ex5,.mq4,.mq5"
-            onChange={(e) => {
-              const f = e.target.files?.[0] || null;
-              setFile(f);
-              if (f) toast.info(`Selected: ${f.name}`);
-            }}
-            style={{ color: '#9CA3AF' }}
+          <Label className="text-gray-300 text-sm flex items-center gap-1.5">
+            <Link className="w-3.5 h-3.5" />
+            Download URL *
+          </Label>
+          <Input
+            placeholder="https://drive.google.com/file/d/... / https://mega.nz/..."
+            value={fileUrl}
+            onChange={(e) => setFileUrl(e.target.value)}
+            style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
           />
-          {fileUrl && (
-            <p className="text-xs text-[#00FFB2]/70 truncate">📎 File set</p>
-          )}
+          <p className="text-[10px] text-gray-500">
+            Paste link Google Drive, Mega, MediaFire, dll. Wajib diisi supaya tombol download bisa dipakai.
+          </p>
         </div>
 
-        {/* Image Upload */}
+        {/* File Name */}
         <div className="space-y-1.5">
-          <Label className="text-gray-300 text-sm">Image (.png, .jpg, .jpeg, .webp)</Label>
-          <input
-            type="file"
-            accept=".png,.jpg,.jpeg,.webp"
-            onChange={(e) => {
-              const f = e.target.files?.[0] || null;
-              setImage(f);
-              if (f) toast.info(`Image: ${f.name}`);
-            }}
-            style={{ color: '#9CA3AF' }}
+          <Label className="text-gray-300 text-sm flex items-center gap-1.5">
+            <Upload className="w-3.5 h-3.5" />
+            Nama File (opsional)
+          </Label>
+          <Input
+            placeholder="GoldScalperPro.ex4"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
+          />
+        </div>
+
+        {/* Image URL */}
+        <div className="space-y-1.5">
+          <Label className="text-gray-300 text-sm flex items-center gap-1.5">
+            <ImageIcon className="w-3.5 h-3.5" />
+            Image URL (opsional)
+          </Label>
+          <Input
+            placeholder="https://example.com/image.png"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}
           />
           {imageUrl && (
             <div className="mt-2 flex items-center gap-2">
               <img
-                src={imageUrl}
-                alt="Preview"
-                className="w-12 h-12 rounded-lg object-cover"
-                style={{ border: '1px solid #1F2937' }}
-              />
-              <p className="text-xs text-[#00FFB2]/70">🖼️ Image set</p>
-            </div>
-          )}
-        </div>
-
-        {/* Featured & Hot */}
-        <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.isFeatured}
-              onChange={(e) => updateField('isFeatured', e.target.checked)}
-              className="w-4 h-4 accent-[#00FFB2]"
-            />
-            <span className="text-gray-300 text-sm">⭐ Featured</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.isHot}
-              onChange={(e) => updateField('isHot', e.target.checked)}
-              className="w-4 h-4 accent-[#EF4444]"
-            />
-            <span className="text-gray-300 text-sm">🔥 Hot</span>
-          </label>
-        </div>
-
-        {/* Submit Buttons */}
-        <div className="flex items-center gap-3 pt-2">
-          <Button
-            type="submit"
-            disabled={submitting || uploading}
-            className="flex-1 font-semibold"
-            style={{ backgroundColor: '#00FFB2', color: '#0B0F1A' }}
-          >
-            {(submitting || uploading) ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {uploading ? 'Uploading...' : 'Saving...'}
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                {isEdit ? 'Update Tool' : 'Create Tool'}
-              </>
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={submitting}
-            style={{ borderColor: '#1F2937', color: '#9CA3AF' }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
-}
