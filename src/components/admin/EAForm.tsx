@@ -232,12 +232,12 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
               value={form.type}
               onValueChange={(v) => updateField('type', v)}
             >
-              <SelectTrigger className="bg-dark-bg border-dark-border text-white">
+              <SelectTrigger style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-dark-card border-dark-border">
-                <SelectItem value="ea">EA (Expert Advisor)</SelectItem>
-                <SelectItem value="indicator">Indicator</SelectItem>
+              <SelectContent portal={false} style={{ backgroundColor: '#111827', borderColor: '#1F2937' }}>
+                <SelectItem value="ea" style={{ color: '#fff' }}>EA (Expert Advisor)</SelectItem>
+                <SelectItem value="indicator" style={{ color: '#fff' }}>Indicator</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -248,14 +248,14 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
               value={form.category}
               onValueChange={(v) => updateField('category', v)}
             >
-              <SelectTrigger className="bg-dark-bg border-dark-border text-white">
+              <SelectTrigger style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-dark-card border-dark-border">
-                <SelectItem value="scalping">Scalping</SelectItem>
-                <SelectItem value="auto-trading">Auto Trading</SelectItem>
-                <SelectItem value="indicator">Indicator</SelectItem>
-                <SelectItem value="tools">Tools</SelectItem>
+              <SelectContent portal={false} style={{ backgroundColor: '#111827', borderColor: '#1F2937' }}>
+                <SelectItem value="scalping" style={{ color: '#fff' }}>Scalping</SelectItem>
+                <SelectItem value="auto-trading" style={{ color: '#fff' }}>Auto Trading</SelectItem>
+                <SelectItem value="indicator" style={{ color: '#fff' }}>Indicator</SelectItem>
+                <SelectItem value="tools" style={{ color: '#fff' }}>Tools</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -268,13 +268,13 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
             value={form.platform}
             onValueChange={(v) => updateField('platform', v)}
           >
-            <SelectTrigger className="bg-dark-bg border-dark-border text-white">
+            <SelectTrigger style={{ backgroundColor: '#0B0F1A', borderColor: '#1F2937', color: '#fff' }}>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-dark-card border-dark-border">
-              <SelectItem value="mt4">MT4</SelectItem>
-              <SelectItem value="mt5">MT5</SelectItem>
-              <SelectItem value="both">Both</SelectItem>
+            <SelectContent portal={false} style={{ backgroundColor: '#111827', borderColor: '#1F2937' }}>
+              <SelectItem value="mt4" style={{ color: '#fff' }}>MT4</SelectItem>
+              <SelectItem value="mt5" style={{ color: '#fff' }}>MT5</SelectItem>
+              <SelectItem value="both" style={{ color: '#fff' }}>Both</SelectItem>
             </SelectContent>
           </Select>
         </div>
