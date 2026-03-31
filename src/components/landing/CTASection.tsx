@@ -10,18 +10,22 @@ const ctaStats = [
   { value: '100%', label: 'Free' },
 ];
 
+const DEFAULT_SAWERIA_URL = 'https://saweria.co/eahub';
+
 export default function CTASection() {
-  const [saweriaUrl, setSaweriaUrl] = useState('');
+  const [saweriaUrl, setSaweriaUrl] = useState(DEFAULT_SAWERIA_URL);
 
   useEffect(() => {
-    fetch('/api/site-config')
+    fetch(`/api/site-config?t=${Date.now()}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.saweriaUrl) {
           setSaweriaUrl(data.saweriaUrl);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setSaweriaUrl(DEFAULT_SAWERIA_URL);
+      });
   }, []);
 
   return (
@@ -65,22 +69,20 @@ export default function CTASection() {
             </Button>
 
             {/* Saweria Donation Button */}
-            {saweriaUrl && (
-              <a
-                href={saweriaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{
-                  background: 'linear-gradient(135deg, #FBBF24, #F59E0B)',
-                  color: '#0B0F1A',
-                  boxShadow: '0 0 20px rgba(251, 191, 36, 0.3), 0 4px 15px rgba(0,0,0,0.3)',
-                }}
-              >
-                <Coffee className="w-5 h-5" />
-                Support us via Saweria
-              </a>
-            )}
+            <a
+              href={saweriaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                background: 'linear-gradient(135deg, #FBBF24, #F59E0B)',
+                color: '#0B0F1A',
+                boxShadow: '0 0 20px rgba(251, 191, 36, 0.3), 0 4px 15px rgba(0,0,0,0.3)',
+              }}
+            >
+              <Coffee className="w-5 h-5" />
+              Support us via Saweria
+            </a>
           </div>
 
           {/* Stats */}
