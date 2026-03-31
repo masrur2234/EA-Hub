@@ -11,7 +11,7 @@ function verifyAdmin(request: NextRequest): boolean {
   return authHeader === `Bearer ${ADMIN_TOKEN}`;
 }
 
-// GET /api/tools - List all tools with optional filters
+// GET /api/tools - List all tools with auto-calculated rating from reviews
 export async function GET(request: NextRequest) {
   try {
     // Seed admin user if none exists
@@ -59,7 +59,38 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(tools);
+    // Auto-calculate rating from approved reviews for each tool
+    const toolIds = tools.map((t) => t.id);
+
+    // Get all approved reviews grouped by toolId
+    const reviews = await db.review.findMany({
+      where: {
+        toolId: { in: toolIds },
+        isApproved: true,
+      },
+    });
+
+    // Calculate average rating per tool
+    const ratingData: Record<string, { total: number; count: number }> = {};
+    for (const review of reviews) {
+      if (!ratingData[review.toolId]) {
+        ratingData[review.toolId] = { total: 0, count: 0 };
+      }
+      ratingData[review.toolId].total += review.rating;
+      ratingData[review.toolId].count += 1;
+    }
+
+    // Merge calculated rating into tools
+    const toolsWithRating = tools.map((tool) => {
+      const data = ratingData[tool.id];
+      const avgRating = data ? Math.round((data.total / data.count) * 10) / 10 : 0;
+      return {
+        ...tool,
+        rating: avgRating,
+      };
+    });
+
+    return NextResponse.json(toolsWithRating);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to fetch tools";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -91,7 +122,6 @@ export async function POST(request: NextRequest) {
         imageUrl: (formData.get("imageUrl") as string) || "",
         version: (formData.get("version") as string) || "1.0",
         author: (formData.get("author") as string) || "Anonymous",
-        rating: formData.get("rating") ? parseFloat(formData.get("rating") as string) : 0,
         downloadCount: formData.get("downloadCount") ? parseInt(formData.get("downloadCount") as string) : 0,
         isFeatured: formData.get("isFeatured") === "true",
         isHot: formData.get("isHot") === "true",
@@ -117,7 +147,7 @@ export async function POST(request: NextRequest) {
         imageUrl: (data.imageUrl as string) || "",
         version: (data.version as string) || "1.0",
         author: (data.author as string) || "Anonymous",
-        rating: (data.rating as number) || 0,
+        rating: 0,
         downloadCount: (data.downloadCount as number) || 0,
         isFeatured: (data.isFeatured as boolean) || false,
         isHot: (data.isHot as boolean) || false,
