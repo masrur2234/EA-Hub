@@ -74,6 +74,9 @@ interface AppState {
 
   selectedTool: TradingTool | null;
   setSelectedTool: (tool: TradingTool | null) => void;
+
+  dataVersion: number;
+  bumpDataVersion: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -93,4 +96,6 @@ export const useAppStore = create<AppState>((set) => ({
   setAdminTab: (t) => set({ adminTab: t }),
   selectedTool: null,
   setSelectedTool: (tool) => set({ selectedTool: tool }),
+  dataVersion: 0,
+  bumpDataVersion: () => set((s) => ({ dataVersion: s.dataVersion + 1 })),
 }));
