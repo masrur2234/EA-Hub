@@ -40,7 +40,6 @@ Stage Summary:
 - 6 API routes fully functional
 - Admin auth via Bearer token
 - File upload to public/downloads/ and public/previews/
-- Auto-seeds admin user (admin/admin123)
 
 ---
 
