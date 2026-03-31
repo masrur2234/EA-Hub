@@ -306,3 +306,72 @@ export default function EAForm({ editTool, onSuccess, onCancel }: EAFormProps) {
           {imageUrl && (
             <div className="mt-2 flex items-center gap-2">
               <img
+                src={imageUrl}
+                alt="Preview"
+                className="w-12 h-12 rounded-lg object-cover"
+                style={{ border: '1px solid #1F2937' }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <p className="text-xs text-[#00FFB2]/70">Preview OK</p>
+            </div>
+          )}
+        </div>
+
+        {/* Featured & Hot */}
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) => updateField('isFeatured', e.target.checked)}
+              className="w-4 h-4 accent-[#00FFB2]"
+            />
+            <span className="text-gray-300 text-sm">Featured</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.isHot}
+              onChange={(e) => updateField('isHot', e.target.checked)}
+              className="w-4 h-4 accent-[#EF4444]"
+            />
+            <span className="text-gray-300 text-sm">Hot</span>
+          </label>
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="flex items-center gap-3 pt-2">
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="flex-1 font-semibold"
+            style={{ backgroundColor: '#00FFB2', color: '#0B0F1A' }}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                {isEdit ? 'Update Tool' : 'Create Tool'}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={submitting}
+            style={{ borderColor: '#1F2937', color: '#9CA3AF' }}
+          >
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
