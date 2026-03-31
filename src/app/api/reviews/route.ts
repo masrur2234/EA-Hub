@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+// IMPORTANT: Force dynamic - prevent Vercel from caching API responses
+export const dynamic = 'force-dynamic';
+
 // GET /api/reviews
 // - ?all=true → return all (admin)
 // - ?approved=true&featured=true → return approved+featured (public)
