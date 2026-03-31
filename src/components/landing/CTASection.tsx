@@ -10,7 +10,7 @@ const ctaStats = [
   { value: '100%', label: 'Free' },
 ];
 
-const DEFAULT_SAWERIA_URL = 'https://saweria.co/eahub';
+const DEFAULT_SAWERIA_URL = 'https://saweria.co/dewakupas';
 
 export default function CTASection() {
   const [saweriaUrl, setSaweriaUrl] = useState(DEFAULT_SAWERIA_URL);
