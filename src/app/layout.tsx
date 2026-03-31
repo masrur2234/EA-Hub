@@ -15,6 +15,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="dark">
+      <head>
+        {/* Google Analytics - G-J07SC4JPSB */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-J07SC4JPSB" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-J07SC4JPSB');
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased min-h-screen bg-[#0B0F1A] text-white">
         {children}
         <Toaster
