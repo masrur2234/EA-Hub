@@ -37,22 +37,34 @@ export default function FeaturedSection() {
   const filterPlatform = useAppStore((s) => s.filterPlatform);
   const selectedTool = useAppStore((s) => s.selectedTool);
   const setSelectedTool = useAppStore((s) => s.setSelectedTool);
+  const dataVersion = useAppStore((s) => s.dataVersion);
 
-  useEffect(() => {
-    async function fetchTools() {
-      try {
-        const res = await fetch('/api/tools');
-        if (res.ok) {
-          const data = await res.json();
-          setTools(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch tools:', err);
-      } finally {
-        setLoading(false);
+  const fetchTools = async () => {
+    try {
+      const res = await fetch(`/api/tools?t=${Date.now()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTools(data);
       }
+    } catch (err) {
+      console.error('Failed to fetch tools:', err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Re-fetch when dataVersion changes (from admin save)
+  useEffect(() => {
     fetchTools();
+  }, [dataVersion]);
+
+  // Also listen for custom event from admin panel (backup refresh mechanism)
+  useEffect(() => {
+    const handleToolsUpdated = () => {
+      fetchTools();
+    };
+    window.addEventListener('tools-updated', handleToolsUpdated);
+    return () => window.removeEventListener('tools-updated', handleToolsUpdated);
   }, []);
 
   const filteredTools = useMemo(() => {
