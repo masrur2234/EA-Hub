@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Search, PackageOpen } from 'lucide-react';
+import { PackageOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAppStore, type TradingTool } from '@/lib/store';
 import EACard from '@/components/ea/EACard';
@@ -27,9 +27,26 @@ const shimmerCard = (
   </div>
 );
 
+const PREVIEW_LIMIT = 6;
+
+function sortTools(tools: TradingTool[]): TradingTool[] {
+  return [...tools].sort((a, b) => {
+    // Featured & Hot always on top
+    if (a.isHot && !b.isHot) return -1;
+    if (!a.isHot && b.isHot) return 1;
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
+    // Then by most downloads
+    if (b.downloadCount !== a.downloadCount) return b.downloadCount - a.downloadCount;
+    // Then by newest first
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
 export default function FeaturedSection() {
   const [tools, setTools] = useState<TradingTool[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   const searchQuery = useAppStore((s) => s.searchQuery);
   const activeCategory = useAppStore((s) => s.activeCategory);
@@ -98,6 +115,16 @@ export default function FeaturedSection() {
     });
   }, [tools, searchQuery, activeCategory, filterType, filterPlatform]);
 
+  // Sort: featured/hot first, then most downloads, then newest
+  const sortedTools = useMemo(() => sortTools(filteredTools), [filteredTools]);
+
+  // If user is actively filtering or searching, show all results
+  const isFiltering = searchQuery !== '' || activeCategory !== 'all' || filterType !== 'all' || filterPlatform !== 'all';
+
+  const displayedTools = isFiltering || showAll ? sortedTools : sortedTools.slice(0, PREVIEW_LIMIT);
+  const hasMore = !isFiltering && sortedTools.length > PREVIEW_LIMIT;
+  const remainingCount = sortedTools.length - PREVIEW_LIMIT;
+
   return (
     <section id="featured" className="py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,7 +145,7 @@ export default function FeaturedSection() {
               <div key={i}>{shimmerCard}</div>
             ))}
           </div>
-        ) : filteredTools.length === 0 ? (
+        ) : sortedTools.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-20 h-20 rounded-2xl bg-[#111827] border border-[#1F2937] flex items-center justify-center mb-4">
               <PackageOpen className="w-10 h-10 text-[#9CA3AF]" />
@@ -131,13 +158,44 @@ export default function FeaturedSection() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTools.map((tool) => (
-              <div key={tool.id}>
-                <EACard tool={tool} onSelect={setSelectedTool} />
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedTools.map((tool) => (
+                <div key={tool.id}>
+                  <EACard tool={tool} onSelect={setSelectedTool} />
+                </div>
+              ))}
+            </div>
+
+            {/* Lihat Semua / Tutup button */}
+            {hasMore && (
+              <div className="flex justify-center mt-10">
+                <button
+                  onClick={() => setShowAll(!showAll)}
+                  className="flex items-center gap-2 px-8 py-3 rounded-xl border-2 border-[#1F2937] text-[#9CA3AF] text-sm font-semibold hover:border-[#00FFB2]/40 hover:text-[#00FFB2] transition-all"
+                >
+                  {showAll ? (
+                    <>
+                      <ChevronUp className="w-4 h-4" />
+                      Tampilkan Sedikit
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      Lihat Semua Tools ({remainingCount} lainnya)
+                    </>
+                  )}
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Info text when showing limited */}
+            {!isFiltering && !showAll && sortedTools.length > PREVIEW_LIMIT && (
+              <p className="text-center text-xs text-gray-600 mt-4">
+                Menampilkan 6 terpopuler dari {sortedTools.length} tools
+              </p>
+            )}
+          </>
         )}
 
         {/* Detail Modal */}
