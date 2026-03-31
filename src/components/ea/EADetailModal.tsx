@@ -151,7 +151,6 @@ function ReviewDialog({
           </div>
         ) : (
           <div className="space-y-4 mt-2">
-            {/* Name */}
             <div>
               <label className="text-sm text-[#9CA3AF] mb-1.5 block">Nama</label>
               <Input
@@ -162,7 +161,6 @@ function ReviewDialog({
               />
             </div>
 
-            {/* Role */}
             <div>
               <label className="text-sm text-[#9CA3AF] mb-1.5 block">Role</label>
               <select
@@ -176,17 +174,11 @@ function ReviewDialog({
               </select>
             </div>
 
-            {/* Star Rating */}
             <div>
               <label className="text-sm text-[#9CA3AF] mb-1.5 block">Rating</label>
-              <StarRating
-                rating={rating}
-                interactive
-                onRate={setRating}
-              />
+              <StarRating rating={rating} interactive onRate={setRating} />
             </div>
 
-            {/* Comment */}
             <div>
               <label className="text-sm text-[#9CA3AF] mb-1.5 block">Komentar</label>
               <Textarea
@@ -198,7 +190,6 @@ function ReviewDialog({
               />
             </div>
 
-            {/* Actions */}
             <div className="flex gap-3 pt-2">
               <Button
                 variant="ghost"
@@ -249,8 +240,8 @@ export default function EADetailModal({
 
   const handleDownload = async () => {
     if (!tool.fileUrl) {
-      setDownloadMsg('File belum tersedia. Hubungi admin untuk info update.');
-      setTimeout(() => setDownloadMsg(''), 3000);
+      setDownloadMsg('⚠️ File belum tersedia. Hubungi admin untuk info update.');
+      setTimeout(() => setDownloadMsg(''), 4000);
       return;
     }
     setDownloading(true);
@@ -258,33 +249,13 @@ export default function EADetailModal({
     try {
       // Increment download count
       fetch(`/api/tools/${tool.id}/download`, { method: 'POST' }).catch(() => {});
-      
-      // Support both regular URLs and base64 data URLs
-      if (tool.fileUrl.startsWith('data:')) {
-        const res = await fetch(tool.fileUrl);
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = tool.fileName || `${tool.name}.ex4`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } else {
-        const link = document.createElement('a');
-        link.href = tool.fileUrl;
-        link.download = tool.fileName || tool.name;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+
+      // Open download link in new tab
+      window.open(tool.fileUrl, '_blank', 'noopener,noreferrer');
       setShowReview(true);
     } catch {
-      setDownloadMsg('Download gagal. Coba lagi nanti.');
-      setTimeout(() => setDownloadMsg(''), 3000);
+      setDownloadMsg('❌ Download gagal. Coba lagi nanti.');
+      setTimeout(() => setDownloadMsg(''), 4000);
     } finally {
       setDownloading(false);
     }
@@ -421,7 +392,7 @@ export default function EADetailModal({
 
             {/* Download Message */}
             {downloadMsg && (
-              <p className="text-center text-sm text-[#F59E0B]">{downloadMsg}</p>
+              <p className="text-center text-sm font-medium text-[#F59E0B] bg-[#F59E0B]/10 rounded-lg px-4 py-2">{downloadMsg}</p>
             )}
           </div>
         </DialogContent>
